@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>计算器</title>
+	<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+	<style>
+		body {
+			background-color: #a7d796;
+			margin: 0;
+			padding: 0;
+		}
+		* {
+			box-sizing: border-box;
+			outline: none!important;
+		}
+		.clearfix:before, .clearfix:after {
+			content: "";
+			display: table;
+		}
+		.clearfix:after { clear: both;}
+		.cal {
+			width: 390px;
+			height: 482px;
+			background-color: #f2f2f2;
+			border-radius: 10px;
+			box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 -4px 0 0 #c6c5c6;
+			margin: 100px auto 0;
+			padding: 0 21px;
+		}
+		.top {
+			height: 141px;
+			padding-top: 41px;
+		}
+		.display-input {
+			width: 100%;
+			height: 70px;
+			border: 1px solid #c3c5c7;
+			background-color: #1c1c1c;
+			border-radius: 5px;
+			box-shadow: 0 2px 0 0 #fff;
+			color: #fff;
+			padding: 15px;
+			font-size: 34px;
+			text-align: right;
+		}
+		.btns-group { 
+			font-size: 0;
+			margin: 0 -8px;
+			position: relative;
+		}
+		.btn {
+			float: left;
+			width: 75px;
+			height: 42px;
+			margin: 0 8px 13px;
+			border-radius: 5px;
+			border: 1px solid #e4e4e4;
+			background-color: #f4f4f4;
+			vertical-align: middle;
+			font-family: 'Lato', sans-serif;
+			font-size: 16px;
+			font-weight: bold;
+			color: #666;
+			cursor: pointer;
+		}
+		.btn:hover { background-color: #efefef;}
+		.btn:active { background-color: #eaeaea;}
+		.btn-long { width: 166px;}
+		.btn-height { 
+			height: 98px;
+			position: absolute;
+			bottom: 0;
+			right: 0;
+		}
+
+	</style>
+</head>
+<body>
+	<div class="cal">
+		<div class="top">
+			<input type="text" name="result" id="result" class="display-input" maxlength="10" disabled>
+		</div>
+		<div class="btns-group clearfix">
+			<button class="btn">MC</button>
+			<button class="btn">M+</button>
+			<button class="btn">M-</button>
+			<button class="btn">MR</button>
+			<button class="btn" data-type="clear">C</button>
+			<button class="btn">±</button>
+			<button class="btn" data-type="opt">/</button>
+			<button class="btn" data-type="opt">*</button>
+			<button class="btn" data-type="num">7</button>
+			<button class="btn" data-type="num">8</button>
+			<button class="btn" data-type="num">9</button>
+			<button class="btn" data-type="opt">-</button>
+			<button class="btn" data-type="num">4</button>
+			<button class="btn" data-type="num">5</button>
+			<button class="btn" data-type="num">6</button>
+			<button class="btn" data-type="opt">+</button>
+			<button class="btn" data-type="num">1</button>
+			<button class="btn" data-type="num">2</button>
+			<button class="btn" data-type="num">3</button>
+			<button class="btn btn-long" data-type="num">0</button>
+			<button class="btn" data-type=""></button>
+			<button class="btn btn-height" data-type="equ">=</button>
+		</div>
+	</div>
+	
+	<script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+	<script>
+	var mycal = function() {
+		this.temp = '0';
+		this.equalflag = false;
+		this.storage = {
+			current: [],
+			before: []
+		};
+		var me = this, nstore = this.storage, result = $('#result');
+
+		var clearArray = function(elem, i, arr) { arr[i] = '';};
+		this.clear = function() {
+			nstore.current.length = 0;
+			nstore.before.length = 0;
+			me.temp = '';
+			result.val('0');
+		};
+		//复制数组
+		this.arrayCopy = function(args1, args2) {
+			args2.map(function(elem, index){
+				args1[index] = elem;
+			});
+		};
+		//数字键
+		this.numberClick = function() {
+			var value = $(this).text();
+			//console.log(value);
+			if(me.temp === '0') me.temp = '';
+			me.temp += value;
+			result.val(me.temp);
+		};
+		//符号键保存数字
+		this.saveNumberOpt = function() {
+			if (!nstore.current.length) {
+				nstore.current[0] = Number(me.temp);
+				me.temp = '';
+				return;
+			}
+			nstore.current[2] = Number(me.temp);
+			me.temp = '';
+		};
+		//符号键
+		this.operatorClick = function() {
+			var value = $(this).text(), res;
+
+			if(me.temp === '') {
+				nstore.current[0] = !nstore.current.length ? Number(nstore.before[0]) : nstore.current[0];
+				nstore.current[1] = value;
+				return;
+			}
+			me.saveNumberOpt();
+			if(nstore.current.length === 3) {
+				res = me.calFunction(nstore.current);
+				result.val(res);
+				me.arrayCopy(nstore.before, nstore.current);
+				nstore.current.length = 0;
+				nstore.current[0] = res;
+			}
+			nstore.current[1] = value;
+			console.log(res);
+		};
+		//等号键
+		this.equalClick = function() {
+			var res;
+			if(nstore.current.length<2) {
+				if(me.temp === '') return;
+				me.saveNumberOpt();
+				return;
+			}
+			me.saveNumberOpt();
+			console.log(nstore.current);
+			if(nstore.current.length === 3) {
+				res = me.calFunction(nstore.current);
+				result.val(res);
+				me.arrayCopy(nstore.before, nstore.current);
+				nstore.current.length = 0;
+				nstore.before[0] = res;
+			}
+		};
+		//计算
+		this.calFunction = function(args) {
+			if(args.length<3) return null;
+			switch (args[1]) {
+				case '+':
+					return me.addFunc(args[0], args[2]);
+				case '-':
+					return me.subFunc(args[0], args[2]);
+				case '*':
+					return me.multiFunc(args[0], args[2]);
+				case '/':
+					return me.dividFunc(args[0], args[2]);
+				default: 
+					return null;
+			}
+		};
+
+		this.addFunc = function(n1, n2) {	//加
+			var l1, l2, m;
+			try{l1=n1.toString().split(".")[1].length}catch(e){l1=0};
+        	try{l2=n2.toString().split(".")[1].length}catch(e){l2=0};
+        	m = Math.pow(10, Math.max(l1,l2));
+			return (n1*m+n2*m)/m;
+		};
+		this.subFunc = function(n1, n2) {	//减
+			var l1, l2, m;
+			try{l1=n1.toString().split(".")[1].length}catch(e){l1=0};   
+        	try{l2=n2.toString().split(".")[1].length}catch(e){l2=0};
+        	m = Math.pow(10, Math.max(l1,l2));
+			return (n1*m-n2*m)/m;
+		};
+		this.multiFunc = function(n1, n2) {		//乘
+			var l1, l2, m1, m2;
+			try{l1=n1.toString().split(".")[1].length}catch(e){l1=0};   
+        	try{l2=n2.toString().split(".")[1].length}catch(e){l2=0};
+        	m1 = Math.pow(10, l1);
+        	m2 = Math.pow(10, l2);
+			return (n1*m1)*(n2*m2)/(m1*m2);
+		};
+		this.dividFunc = function(n1, n2) {		//除
+			var l1, l2, m1, m2;
+			try{l1=n1.toString().split(".")[1].length}catch(e){l1=0};  
+        	try{l2=n2.toString().split(".")[1].length}catch(e){l2=0};
+        	m1 = Math.pow(10, l1);
+        	m2 = Math.pow(10, l2);
+			return ((n1*m1)/(n2*m2))*(m2/m1);
+		};
+
+		this.init = function() {
+			me.clear();
+			$('button[data-type="clear"]').click(me.clear);
+			$('button[data-type="num"]').click(me.numberClick);
+			$('button[data-type="opt"]').click(me.operatorClick);
+			$('button[data-type="equ"]').click(me.equalClick);
+		};
+		this.init();
+	};
+	mycal();
+
+	/*
+		var mycal = function() {
+			this.storage = {
+				numberPrev: '0',			//前一个数字
+				numberCurrent: '0',		//后一个数字
+				operatorPrev: '',		//保存的符号
+				equalsOperator: '',		//等于号保存的符号
+				equalsNumber: '0',		//等于号保存的数字
+			};
+			var me = this, mes = me.storage;
+
+			//初始化
+			me.init = function() {
+				for(var i in mes) {
+					mes[i] = '';
+				}
+				$('#result').val(0);
+				var bbb = parseFloat(0.1)+parseFloat(0.2);
+				console.log(bbb);
+			};
+
+			//数字键按钮
+			me.numberClick = function() {
+				//按数字键保存数字
+				var value = $(this).text();
+				//开始重复0不输入
+				if(mes.numberCurrent==='0' && value === '0') {
+					$('#result').val(mes.numberCurrent);
+					return;
+				}
+				if(value === '.') {
+					//输入点时判断
+					if(mes.numberCurrent.indexOf('.') != -1) return;	//重复点返回
+				}
+				mes.numberCurrent += value;
+				$('#result').val(mes.numberCurrent);
+			};
+
+			//符号键按钮,不包括等号
+			me.operatorClick = function() {
+				var opt = $(this).text();
+				//首先判断当前值是否为空，重复输入符号要覆盖
+				if(!mes.numberCurrent) {
+					mes.operatorPrev = opt;
+					return;
+				}
+				//符号键触发时先判断是否已存在运算符号，如果存在先计算。
+				if(mes.operatorPrev) {
+					var result = eval(mes.numberPrev+mes.operatorPrev+mes.numberCurrent);
+					mes.numberPrev = result;
+					$('#result').val(result);
+				} else {
+					mes.numberPrev = mes.numberCurrent;
+				}
+				mes.numberCurrent = '';
+				mes.operatorPrev = opt;
+			};
+
+			//等号按钮
+			me.equalClick = function() {
+				if(mes.operatorPrev || mes.numberCurrent) {
+					mes.equalsOperator = mes.operatorPrev?mes.operatorPrev:'+';
+					mes.equalsNumber = mes.numberCurrent?mes.numberCurrent:'0';
+					mes.operatorPrev = '';
+					mes.numberCurrent = '';
+				}
+				if(!mes.numberPrev) {
+					mes.equalsOperator = mes.operatorPrev?mes.operatorPrev:'+';
+					mes.numberPrev = mes.numberCurrent;
+					mes.numberCurrent = '';
+				} 
+				if(mes.operatorPrev) {
+					mes.equalsNumber = mes.numberCurrent?mes.numberCurrent:mes.numberPrev;
+					mes.numberCurrent = '';
+				}
+				var result = eval(Number(mes.numberPrev)+mes.equalsOperator+mes.equalsNumber);
+				console.log(mes.numberPrev+","+mes.equalsOperator+","+mes.equalsNumber);
+				mes.numberPrev = result;
+				$('#result').val(result);
+			};
+
+
+			//数字按键
+			$('button[data-type="num"]').click(me.numberClick);
+			//符号按键,不包括等号
+			$('button[data-type="opt"]').click(me.operatorClick);
+			//等于号按键
+			$('button[data-type="equ"]').click(me.equalClick);
+			//清空
+			$('button[data-type="clear"]').click(me.init);
+		};
+
+		var cal = new mycal();
+		cal.init();
+	*/
+	</script>
+</body>
+</html>
