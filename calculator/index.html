@@ -88,8 +88,8 @@
 			<button class="btn">MR</button>
 			<button class="btn" data-type="clear">C</button>
 			<button class="btn">±</button>
-			<button class="btn" data-type="opt">/</button>
-			<button class="btn" data-type="opt">*</button>
+			<button class="btn" data-type="opt">÷</button>
+			<button class="btn" data-type="opt">×</button>
 			<button class="btn" data-type="num">7</button>
 			<button class="btn" data-type="num">8</button>
 			<button class="btn" data-type="num">9</button>
@@ -109,238 +109,163 @@
 	
 	<script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
 	<script>
-	var mycal = function() {
-		this.temp = '0';
-		this.equalflag = false;
-		this.storage = {
-			current: [],
-			before: []
-		};
-		var me = this, nstore = this.storage, result = $('#result');
-
-		var clearArray = function(elem, i, arr) { arr[i] = '';};
-		this.clear = function() {
-			nstore.current.length = 0;
-			nstore.before.length = 0;
-			me.temp = '';
-			result.val('0');
-		};
-		//复制数组
-		this.arrayCopy = function(args1, args2) {
-			args2.map(function(elem, index){
-				args1[index] = elem;
-			});
-		};
-		//数字键
-		this.numberClick = function() {
-			var value = $(this).text();
-			//console.log(value);
-			if(me.temp === '0') me.temp = '';
-			me.temp += value;
-			result.val(me.temp);
-		};
-		//符号键保存数字
-		this.saveNumberOpt = function() {
-			if (!nstore.current.length) {
-				nstore.current[0] = Number(me.temp);
-				me.temp = '';
-				return;
-			}
-			nstore.current[2] = Number(me.temp);
-			me.temp = '';
-		};
-		//符号键
-		this.operatorClick = function() {
-			var value = $(this).text(), res;
-
-			if(me.temp === '') {
-				nstore.current[0] = !nstore.current.length ? Number(nstore.before[0]) : nstore.current[0];
-				nstore.current[1] = value;
-				return;
-			}
-			me.saveNumberOpt();
-			if(nstore.current.length === 3) {
-				res = me.calFunction(nstore.current);
-				result.val(res);
-				me.arrayCopy(nstore.before, nstore.current);
-				nstore.current.length = 0;
-				nstore.current[0] = res;
-			}
-			nstore.current[1] = value;
-			console.log(res);
-		};
-		//等号键
-		this.equalClick = function() {
-			var res;
-			if(nstore.current.length<2) {
-				if(me.temp === '') return;
-				me.saveNumberOpt();
-				return;
-			}
-			me.saveNumberOpt();
-			console.log(nstore.current);
-			if(nstore.current.length === 3) {
-				res = me.calFunction(nstore.current);
-				result.val(res);
-				me.arrayCopy(nstore.before, nstore.current);
-				nstore.current.length = 0;
-				nstore.before[0] = res;
-			}
-		};
-		//计算
-		this.calFunction = function(args) {
-			if(args.length<3) return null;
-			switch (args[1]) {
-				case '+':
-					return me.addFunc(args[0], args[2]);
-				case '-':
-					return me.subFunc(args[0], args[2]);
-				case '*':
-					return me.multiFunc(args[0], args[2]);
-				case '/':
-					return me.dividFunc(args[0], args[2]);
-				default: 
-					return null;
-			}
-		};
-
-		this.addFunc = function(n1, n2) {	//加
-			var l1, l2, m;
-			try{l1=n1.toString().split(".")[1].length}catch(e){l1=0};
-        	try{l2=n2.toString().split(".")[1].length}catch(e){l2=0};
-        	m = Math.pow(10, Math.max(l1,l2));
-			return (n1*m+n2*m)/m;
-		};
-		this.subFunc = function(n1, n2) {	//减
-			var l1, l2, m;
-			try{l1=n1.toString().split(".")[1].length}catch(e){l1=0};   
-        	try{l2=n2.toString().split(".")[1].length}catch(e){l2=0};
-        	m = Math.pow(10, Math.max(l1,l2));
-			return (n1*m-n2*m)/m;
-		};
-		this.multiFunc = function(n1, n2) {		//乘
-			var l1, l2, m1, m2;
-			try{l1=n1.toString().split(".")[1].length}catch(e){l1=0};   
-        	try{l2=n2.toString().split(".")[1].length}catch(e){l2=0};
-        	m1 = Math.pow(10, l1);
-        	m2 = Math.pow(10, l2);
-			return (n1*m1)*(n2*m2)/(m1*m2);
-		};
-		this.dividFunc = function(n1, n2) {		//除
-			var l1, l2, m1, m2;
-			try{l1=n1.toString().split(".")[1].length}catch(e){l1=0};  
-        	try{l2=n2.toString().split(".")[1].length}catch(e){l2=0};
-        	m1 = Math.pow(10, l1);
-        	m2 = Math.pow(10, l2);
-			return ((n1*m1)/(n2*m2))*(m2/m1);
-		};
-
-		this.init = function() {
-			me.clear();
-			$('button[data-type="clear"]').click(me.clear);
-			$('button[data-type="num"]').click(me.numberClick);
-			$('button[data-type="opt"]').click(me.operatorClick);
-			$('button[data-type="equ"]').click(me.equalClick);
-		};
-		this.init();
-	};
-	mycal();
-
-	/*
 		var mycal = function() {
-			this.storage = {
-				numberPrev: '0',			//前一个数字
-				numberCurrent: '0',		//后一个数字
-				operatorPrev: '',		//保存的符号
-				equalsOperator: '',		//等于号保存的符号
-				equalsNumber: '0',		//等于号保存的数字
+			this.infos = {
+				lastBtnType: '',	//上一次按键类型
+				lnumber: null,		//左边的数字
+				rnumber: null,		//右边的数字
+				opt: null,			//运算符号
+				equalFlag: false	//上次运算是否按过等号的标志
 			};
-			var me = this, mes = me.storage;
+			var tmp = '', me = this, mei = this.infos, resultbox = $("#result");
 
-			//初始化
-			me.init = function() {
-				for(var i in mes) {
-					mes[i] = '';
+			this.btnClick = function() {
+				var type = $(this).data("type");	//获得按键类型并执行相应操作
+				switch(type) {
+					case 'clear':
+						me.clearAll();
+						break;
+					case 'num':
+						me.clickNumber(this);
+						break;
+					case 'opt':
+						me.clickOpreator(this);
+						break;
+					case 'equ':
+						me.clickEquals(this);
+						break;
 				}
-				$('#result').val(0);
-				var bbb = parseFloat(0.1)+parseFloat(0.2);
-				console.log(bbb);
+				mei.lastBtnType = type;
 			};
 
-			//数字键按钮
-			me.numberClick = function() {
-				//按数字键保存数字
-				var value = $(this).text();
-				//开始重复0不输入
-				if(mes.numberCurrent==='0' && value === '0') {
-					$('#result').val(mes.numberCurrent);
+			this.clearAll = function() {	//初始化
+				mei.lastBtnType = '';
+				mei.lnumber = null;
+				mei.rnumber = null;
+				mei.opt = null;
+				tmp = '';
+				resultbox.val('0');
+			};
+
+			this.clickNumber = function(e) {	//点击数字按钮的操作
+				var letter = $(e).text();
+				if(mei.lastBtnType === "equ") {
+					tmp = '';
+				}
+				tmp = Number(tmp+letter);
+				resultbox.val(tmp);
+			};
+			this.saveNumber = function() {		//保存数字
+				mei.lnumber = mei.lnumber===null? 0 : mei.lnumber;
+				mei.opt = mei.opt===null? '+' : mei.opt;
+				mei.rnumber = tmp===null? Number(mei.rnumber) : Number(tmp);
+			};
+			this.clickOpreator = function(e) {		//点击运算符号的操作
+				if(mei.lastBtnType === "num") {
+					if(mei.equalFlag) {		//如果是按过等于号后重新开始，之前的保存结果清空（这里是按过数字键再按运算符）
+						mei.equalFlag = false;
+						mei.lnumber = null;
+						mei.opt = null;
+					}
+					me.saveNumber();
+					me.doCalculate();
+					tmp = '';
+				}
+				mei.opt = $(e).text();
+				mei.equalFlag = false;	//没按过数字键直接按运算符不必清空运算结果，取消标志
+			};
+			this.clickEquals = function(e) {
+				if(mei.lastBtnType === '') return;		//无操作返回
+				if(mei.opt === null) {		//无运算符号，保存值后返回
+					mei.rnumber = Number(tmp);
+					tmp = '';
 					return;
 				}
-				if(value === '.') {
-					//输入点时判断
-					if(mes.numberCurrent.indexOf('.') != -1) return;	//重复点返回
+				if(mei.lastBtnType === 'num') {		//保存后继续（普通的等式步骤）
+					me.saveNumber();
 				}
-				mes.numberCurrent += value;
-				$('#result').val(mes.numberCurrent);
+				if(mei.lastBtnType === 'opt') {		//运算符后直接按等号，右边值为空，此时将左边值赋值给右边值
+					mei.rnumber = mei.lnumber;
+				}
+				me.doCalculate();	//计算
+				tmp = '';
+				mei.equalFlag = true;
 			};
 
-			//符号键按钮,不包括等号
-			me.operatorClick = function() {
-				var opt = $(this).text();
-				//首先判断当前值是否为空，重复输入符号要覆盖
-				if(!mes.numberCurrent) {
-					mes.operatorPrev = opt;
-					return;
+			this.doCalculate = function() {
+				var result;
+				switch(mei.opt) {
+					case '+':
+						result = me.FloatAdd(mei.lnumber, mei.rnumber);
+						break;
+					case '-':
+						result = me.FloatSub(mei.lnumber, mei.rnumber);
+						break;
+					case '×':
+						result = me.FloatMul(mei.lnumber, mei.rnumber);
+						break;
+					case '÷':
+						result = me.FloatDiv(mei.lnumber, mei.rnumber);
+						break;
 				}
-				//符号键触发时先判断是否已存在运算符号，如果存在先计算。
-				if(mes.operatorPrev) {
-					var result = eval(mes.numberPrev+mes.operatorPrev+mes.numberCurrent);
-					mes.numberPrev = result;
-					$('#result').val(result);
-				} else {
-					mes.numberPrev = mes.numberCurrent;
-				}
-				mes.numberCurrent = '';
-				mes.operatorPrev = opt;
+				//计算后保存结果到左边值，并显示
+				mei.lnumber = result;
+				resultbox.val(result);
 			};
 
-			//等号按钮
-			me.equalClick = function() {
-				if(mes.operatorPrev || mes.numberCurrent) {
-					mes.equalsOperator = mes.operatorPrev?mes.operatorPrev:'+';
-					mes.equalsNumber = mes.numberCurrent?mes.numberCurrent:'0';
-					mes.operatorPrev = '';
-					mes.numberCurrent = '';
+			//获取小数点后面的位数
+			var getLen = function(num) {
+				var len;
+				try {
+					len = num.toString().split(".")[1].length;
+				} catch(e) {
+					len = 0;
 				}
-				if(!mes.numberPrev) {
-					mes.equalsOperator = mes.operatorPrev?mes.operatorPrev:'+';
-					mes.numberPrev = mes.numberCurrent;
-					mes.numberCurrent = '';
-				} 
-				if(mes.operatorPrev) {
-					mes.equalsNumber = mes.numberCurrent?mes.numberCurrent:mes.numberPrev;
-					mes.numberCurrent = '';
-				}
-				var result = eval(Number(mes.numberPrev)+mes.equalsOperator+mes.equalsNumber);
-				console.log(mes.numberPrev+","+mes.equalsOperator+","+mes.equalsNumber);
-				mes.numberPrev = result;
-				$('#result').val(result);
+				return len;
+			};
+			//加
+			this.FloatAdd = function (arg1,arg2) {
+				var r1,r2,m;
+				r1 = getLen(arg1);
+				r2 = getLen(arg2);
+				m=Math.pow(10,Math.max(r1,r2));
+				return (arg1*m+arg2*m)/m;   
+			};
+			//减
+			this.FloatSub = function (arg1,arg2) {
+				var r1,r2,m,n;
+				r1 = getLen(arg1);
+				r2 = getLen(arg2);
+				m=Math.pow(10,Math.max(r1,r2));
+				n=(r1>=r2)?r1:r2;
+				return ((arg1*m-arg2*m)/m).toFixed(n);   
+			};
+			//乘
+			this.FloatMul = function (arg1,arg2) {
+				var m=0,r1,r2;
+				m+=getLen(arg1);
+				m+=getLen(arg2);
+				r1=Number(arg1.toString().replace(".",""));
+				r2=Number(arg2.toString().replace(".",""));
+				return r1*r2/Math.pow(10,m);    
+			};
+			//除
+			this.FloatDiv = function (arg1,arg2) {
+				var t1=0,t2=0,r1,r2;
+				t1 = getLen(arg1);
+				t2 = getLen(arg2);
+				r1=Number(arg1.toString().replace(".",""));
+				r2=Number(arg2.toString().replace(".",""));
+				return(r1/r2)*Math.pow(10,t2-t1);
 			};
 
-
-			//数字按键
-			$('button[data-type="num"]').click(me.numberClick);
-			//符号按键,不包括等号
-			$('button[data-type="opt"]').click(me.operatorClick);
-			//等于号按键
-			$('button[data-type="equ"]').click(me.equalClick);
-			//清空
-			$('button[data-type="clear"]').click(me.init);
+			this.init = function() {
+				me.clearAll();
+				$('button').click(me.btnClick);
+			};
+			this.init();
 		};
-
-		var cal = new mycal();
-		cal.init();
-	*/
+		var cals = new mycal();
 	</script>
 </body>
 </html>
