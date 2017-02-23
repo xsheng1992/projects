@@ -41,7 +41,7 @@
 			box-shadow: 0 2px 0 0 #fff;
 			color: #fff;
 			padding: 15px;
-			font-size: 34px;
+			font-size: 28px;
 			text-align: right;
 		}
 		.btns-group { 
@@ -102,7 +102,7 @@
 			<button class="btn" data-type="num">2</button>
 			<button class="btn" data-type="num">3</button>
 			<button class="btn btn-long" data-type="num">0</button>
-			<button class="btn" data-type=""></button>
+			<button class="btn" data-type="num">.</button>
 			<button class="btn btn-height" data-type="equ">=</button>
 		</div>
 	</div>
@@ -148,9 +148,17 @@
 			};
 
 			this.clickNumber = function(e) {	//点击数字按钮的操作
+				if(tmp.toString().length > 13) return;
 				var letter = $(e).text();
 				if(mei.lastBtnType === "equ") {
 					tmp = '';
+				}
+				if(letter === '.') {
+					if(tmp.toString().indexOf('.')!==-1) return;
+					if(tmp === '' || tmp === 0) tmp = 0;
+					tmp+=letter;
+					resultbox.val(tmp);
+					return;
 				}
 				tmp = Number(tmp+letter);
 				resultbox.val(tmp);
